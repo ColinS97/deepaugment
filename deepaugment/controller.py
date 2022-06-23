@@ -2,29 +2,10 @@
 
 import skopt
 import numpy as np
+import aug_lib
 
-AUG_TYPES = [
-    "crop",
-    "gaussian-blur",
-    "rotate",
-    "shear",
-    "translate-x",
-    "translate-y",
-    "sharpen",
-    "emboss",
-    "additive-gaussian-noise",
-    "dropout",
-    "coarse-dropout",
-    "gamma-contrast",
-    "brighten",
-    "invert",
-    "fog",
-    "clouds",
-    "add-to-hue-and-saturation",
-    "coarse-salt-pepper",
-    "horizontal-flip",
-    "vertical-flip",
-]
+AUG_TYPES = aug_lib.ALL_TRANSFORMS
+MAX_MAGNITUDE = aug_lib.PARAMETER_MAX
 
 
 def augment_type_chooser():
@@ -69,29 +50,25 @@ class Controller:
         self.opt = skopt.Optimizer(
             [
                 skopt.space.Categorical(AUG_TYPES, name="A_aug1_type"),
-                skopt.space.Real(0.0, 1.0, name="A_aug1_magnitude"),
+                skopt.space.Int(0, MAX_MAGNITUDE, name="A_aug1_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="A_aug2_type"),
-                skopt.space.Real(0.0, 1.0, name="A_aug2_magnitude"),
-
+                skopt.space.Int(0, MAX_MAGNITUDE, name="A_aug2_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="B_aug1_type"),
-                skopt.space.Real(0.0, 1.0, name="B_aug1_magnitude"),
+                skopt.space.Int(0, MAX_MAGNITUDE, name="B_aug1_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="B_aug2_type"),
-                skopt.space.Real(0.0, 1.0, name="B_aug2_magnitude"),
-
+                skopt.space.Int(0, MAX_MAGNITUDE, name="B_aug2_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="C_aug1_type"),
-                skopt.space.Real(0.0, 1.0, name="C_aug1_magnitude"),
+                skopt.space.Int(0, MAX_MAGNITUDE, name="C_aug1_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="C_aug2_type"),
-                skopt.space.Real(0.0, 1.0, name="C_aug2_magnitude"),
-
+                skopt.space.Int(0, MAX_MAGNITUDE, name="C_aug2_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="D_aug1_type"),
-                skopt.space.Real(0.0, 1.0, name="D_aug1_magnitude"),
+                skopt.space.Int(0, MAX_MAGNITUDE, name="D_aug1_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="D_aug2_type"),
-                skopt.space.Real(0.0, 1.0, name="D_aug2_magnitude"),
-
+                skopt.space.Int(0, MAX_MAGNITUDE, name="D_aug2_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="E_aug1_type"),
-                skopt.space.Real(0.0, 1.0, name="E_aug1_magnitude"),
+                skopt.space.Int(0, MAX_MAGNITUDE, name="E_aug1_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="E_aug2_type"),
-                skopt.space.Real(0.0, 1.0, name="E_aug2_magnitude")
+                skopt.space.Int(0, MAX_MAGNITUDE, name="E_aug2_magnitude"),
             ],
             n_initial_points=opt_initial_points,
             base_estimator="RF",  # Random Forest estimator
@@ -101,8 +78,7 @@ class Controller:
         )
 
     def init_random_search(self):
-        """Initializes random search as the search space is list of random functions
-        """
+        """Initializes random search as the search space is list of random functions"""
         self.random_search_space = [
             augment_type_chooser,
             np.random.rand,
