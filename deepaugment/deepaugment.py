@@ -1,16 +1,18 @@
 # (C) 2019 Baris Ozmen <hbaristr@gmail.com>
 
 import tensorflow as tf
+
+# from tensorflow import keras
 import keras
 
 config = tf.compat.v1.ConfigProto()
-config.gpu_options.allow_growth=True
+config.gpu_options.allow_growth = True
 session = tf.compat.v1.Session(config=config)
 
 
-#config = tf.ConfigProto()
-#config.gpu_options.allow_growth = True  # tell tensorflow not to use all resources
-#session = tf.Session(config=config)
+# config = tf.ConfigProto()
+# config.gpu_options.allow_growth = True  # tell tensorflow not to use all resources
+# session = tf.Session(config=config)
 keras.backend.set_session(session)
 
 import os
@@ -51,6 +53,7 @@ logger = Reporter.logger
 #
 # warn user if TensorFlow does not see the GPU
 from tensorflow.python.client import device_lib
+
 local_devices_str = str(device_lib.list_local_devices())
 if "GPU" not in local_devices_str and "TPU" not in local_devices_str:
     logging.info("Working with CPU")
@@ -75,9 +78,7 @@ DEFAULT_CONFIG = {
 
 
 class DeepAugment:
-    """Initiliazes commponents of DeepAugment (e.g. Controller, Child-model, Notebook) and optimizes image augmentation hyperparameters
-
-    """
+    """Initiliazes commponents of DeepAugment (e.g. Controller, Child-model, Notebook) and optimizes image augmentation hyperparameters"""
 
     @logger(logfile_dir=EXPERIMENT_FOLDER_PATH)
     def __init__(self, images="cifar10", labels=None, config=None):
@@ -112,7 +113,8 @@ class DeepAugment:
                 }
         """
         self.config = DEFAULT_CONFIG
-        if config!=None: self.config.update(config)
+        if config != None:
+            self.config.update(config)
         self.iterated = 0  # keep tracks how many times optimizer iterated
 
         self._load_and_preprocess_data(images, labels)
@@ -168,15 +170,33 @@ class DeepAugment:
             batch_size = self.config["child_batch_size"]
 
         top_policies_list = self.top_policies[
-            ['A_aug1_type', 'A_aug1_magnitude', 'A_aug2_type', 'A_aug2_magnitude',
-             'B_aug1_type', 'B_aug1_magnitude', 'B_aug2_type', 'B_aug2_magnitude',
-             'C_aug1_type', 'C_aug1_magnitude', 'C_aug2_type', 'C_aug2_magnitude',
-             'D_aug1_type', 'D_aug1_magnitude', 'D_aug2_type', 'D_aug2_magnitude',
-             'E_aug1_type', 'E_aug1_magnitude', 'E_aug2_type', 'E_aug2_magnitude']
+            [
+                "A_aug1_type",
+                "A_aug1_magnitude",
+                "A_aug2_type",
+                "A_aug2_magnitude",
+                "B_aug1_type",
+                "B_aug1_magnitude",
+                "B_aug2_type",
+                "B_aug2_magnitude",
+                "C_aug1_type",
+                "C_aug1_magnitude",
+                "C_aug2_type",
+                "C_aug2_magnitude",
+                "D_aug1_type",
+                "D_aug1_magnitude",
+                "D_aug2_type",
+                "D_aug2_magnitude",
+                "E_aug1_type",
+                "E_aug1_magnitude",
+                "E_aug2_type",
+                "E_aug2_magnitude",
+            ]
         ].to_dict(orient="records")
 
-        return deepaugment_image_generator(images, labels, top_policies_list, batch_size=batch_size)
-
+        return deepaugment_image_generator(
+            images, labels, top_policies_list, batch_size=batch_size
+        )
 
     def _load_and_preprocess_data(self, images, labels):
         """Loads and preprocesses data
@@ -208,13 +228,29 @@ class DeepAugment:
         )
 
     def _evaluate_objective_func_without_augmentation(self):
-        """Find out what would be the accuracy if augmentation are not applied
-        """
-        no_aug_hyperparams = ["rotate", 0.0, "rotate", 0.0,
-                              "rotate", 0.0, "rotate", 0.0,
-                              "rotate", 0.0, "rotate", 0.0,
-                              "rotate", 0.0, "rotate", 0.0,
-                              "rotate", 0.0, "rotate", 0.0]
+        """Find out what would be the accuracy if augmentation are not applied"""
+        no_aug_hyperparams = [
+            "<identity>",
+            0,
+            "<identity>",
+            0,
+            "<identity>",
+            0,
+            "<identity>",
+            0,
+            "<identity>",
+            0,
+            "<identity>",
+            0,
+            "<identity>",
+            0,
+            "<identity>",
+            0,
+            "<identity>",
+            0,
+            "<identity>",
+            0,
+        ]
         f_val = self.objective_func.evaluate(0, no_aug_hyperparams)
         self.controller.tell(no_aug_hyperparams, f_val)
 
@@ -244,19 +280,19 @@ def main(
     opt_initial_points,
     child_epochs,
     child_first_train_epochs,
-    child_batch_size
+    child_batch_size,
 ):
 
     _config = {
-        "model" : model,
-        "method" : method,
-        "train_set_size" : train_set_size,
-        "opt_samples" : opt_samples,
-        "opt_last_n_epochs" : opt_last_n_epochs,
-        "opt_initial_points" : opt_initial_points,
-        "child_epochs" : child_epochs,
-        "child_first_train_epochs" : child_first_train_epochs,
-        "child_batch_size" : child_batch_size
+        "model": model,
+        "method": method,
+        "train_set_size": train_set_size,
+        "opt_samples": opt_samples,
+        "opt_last_n_epochs": opt_last_n_epochs,
+        "opt_initial_points": opt_initial_points,
+        "child_epochs": child_epochs,
+        "child_first_train_epochs": child_first_train_epochs,
+        "child_batch_size": child_batch_size,
     }
 
     deepaug = DeepAugment(images, labels, config=_config)

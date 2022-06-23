@@ -1,149 +1,64 @@
 # (C) 2019 Baris Ozmen <hbaristr@gmail.com>
 
 import numpy as np
-from imgaug import augmenters as iaa
+import aug_lib
+from PIL import Image
 
 
-def normalize(X):
-    return (X / 255.0).copy()
+def apply_transform(aug_type, magnitude, img):
+    # ich nehme an die daten kommen normalisiert hier an
+    propability = 1.0
+    X_denormed = img * 255
+    denormed_pil_image = Image.fromarray(np.uint8(X_denormed))
+    X = denormed_pil_image
 
-
-def denormalize(X):
-  
-    X_dn = (X * 255).astype(np.uint8)
-    return X_dn
+    if aug_type == "<identity>":
+        X_aug = aug_lib.identity.pil_transformer(propability, magnitude)(X)
+    elif aug_type == "<AutoContrast>":
+        X_aug = aug_lib.auto_contrast.pil_transformer(propability, magnitude)(X)
+    elif aug_type == "<Equalize>":
+        X_aug = aug_lib.equalize.pil_transformer(propability, magnitude)(X)
+    elif aug_type == "<Rotate>":
+        X_aug = aug_lib.rotate.pil_transformer(propability, magnitude)(X)
+    elif aug_type == "<Solarize>":
+        X_aug = aug_lib.solarize.pil_transformer(propability, magnitude)(X)
+    elif aug_type == "<Color>":
+        X_aug = aug_lib.color.pil_transformer(propability, magnitude)(X)
+    elif aug_type == "<Posterize>":
+        X_aug = aug_lib.posterize.pil_transformer(propability, magnitude)(X)
+    elif aug_type == "<Contrast>":
+        X_aug = aug_lib.contrast.pil_transformer(propability, magnitude)(X)
+    elif aug_type == "<Brightness>":
+        X_aug = aug_lib.brightness.pil_transformer(propability, magnitude)(X)
+    elif aug_type == "<Sharpness>":
+        X_aug = aug_lib.sharpness.pil_transformer(propability, magnitude)(X)
+    elif aug_type == "<ShearX>":
+        X_aug = aug_lib.shear_x.pil_transformer(propability, magnitude)(X)
+    elif aug_type == "<ShearY>":
+        X_aug = aug_lib.shear_y.pil_transformer(propability, magnitude)(X)
+    elif aug_type == "<TranslateX>":
+        X_aug = aug_lib.translate_x.pil_transformer(propability, magnitude)(X)
+    elif aug_type == "<TranslateY>":
+        X_aug = aug_lib.translate_y.pil_transformer(propability, magnitude)(X)
+    else:
+        raise ValueError
+    np_image = np.array(X_aug)
+    normed_image = np_image / 255
+    return normed_image
 
 
 def transform(aug_type, magnitude, X):
-    if aug_type == "crop":
-        X_aug = iaa.Crop(px=(0, int(magnitude * 32))).augment_images(X)
-    elif aug_type == "gaussian-blur":
-        X_aug = iaa.GaussianBlur(sigma=(0, magnitude * 25.0)).augment_images(X)
-    elif aug_type == "rotate":
-        X_aug = iaa.Affine(rotate=(-180 * magnitude, 180 * magnitude)).augment_images(X)
-    elif aug_type == "shear":
-        X_aug = iaa.Affine(shear=(-90 * magnitude, 90 * magnitude)).augment_images(X)
-    elif aug_type == "translate-x":
-        X_aug = iaa.Affine(
-            translate_percent={"x": (-magnitude, magnitude), "y": (0, 0)}
-        ).augment_images(X)
-    elif aug_type == "translate-y":
-        X_aug = iaa.Affine(
-            translate_percent={"x": (0, 0), "y": (-magnitude, magnitude)}
-        ).augment_images(X)
-    elif aug_type == "horizontal-flip":
-        X_aug = iaa.Fliplr(magnitude).augment_images(X)
-    elif aug_type == "vertical-flip":
-        X_aug = iaa.Flipud(magnitude).augment_images(X)
-    elif aug_type == "sharpen":
-        X_aug = iaa.Sharpen(
-            alpha=(0, 1.0), lightness=(0.50, 5 * magnitude)
-        ).augment_images(X)
-    elif aug_type == "emboss":
-        X_aug = iaa.Emboss(
-            alpha=(0, 1.0), strength=(0.0, 20.0 * magnitude)
-        ).augment_images(X)
-    elif aug_type == "additive-gaussian-noise":
-        X_aug = iaa.AdditiveGaussianNoise(
-            loc=0, scale=(0.0, magnitude * 255), per_channel=0.5
-        ).augment_images(X)
-    elif aug_type == "dropout":
-        X_aug = iaa.Dropout(
-            (0.01, max(0.011, magnitude)), per_channel=0.5
-        ).augment_images(
-            X
-        )  # Dropout first argument should be smaller than second one
-    elif aug_type == "coarse-dropout":
-        X_aug = iaa.CoarseDropout(
-            (0.03, 0.15), size_percent=(0.30, np.log10(magnitude * 3)), per_channel=0.2
-        ).augment_images(X)
-    elif aug_type == "gamma-contrast":
-        X_norm = normalize(X)
-        X_aug_norm = iaa.GammaContrast(magnitude * 1.75).augment_images(
-            X_norm
-        )  # needs 0-1 values
-        X_aug = denormalize(X_aug_norm)
-    elif aug_type == "brighten":
-        # coarse salt and pepper for testing
-        #X_aug = iaa.CoarseSaltAndPepper(p=0.2, size_percent=magnitude).augment_images(X)
-       
-        #brighten didn't work so I replaced it with CoarseSaltanPepper
-        X_aug = iaa.Add(
-            (int(-40 * magnitude), int(40 * magnitude)), per_channel=0.5
-        ).augment_images(
-            X
-        )  # brighten
-    elif aug_type == "invert":
-        X_aug = iaa.Invert(1.0).augment_images(X)  # magnitude not used
-    elif aug_type == "fog":
-        X_aug = iaa.Fog().augment_images(X)  # magnitude not used
-    elif aug_type == "clouds":
-        X_aug = iaa.Clouds().augment_images(X)  # magnitude not used
-    elif aug_type == "histogram-equalize":
-        X_aug = iaa.AllChannelsHistogramEqualization().augment_images(
-            X
-        )  # magnitude not used
-    elif aug_type == "super-pixels":  # deprecated
-        X_norm = normalize(X)
-        X_norm2 = (X_norm * 2) - 1
-        X_aug_norm2 = iaa.Superpixels(
-            p_replace=(0, magnitude), n_segments=(100, 100)
-        ).augment_images(X_norm2)
-        X_aug_norm = (X_aug_norm2 + 1) / 2
-        X_aug = denormalize(X_aug_norm)
-    elif aug_type == "perspective-transform":
-        X_norm = normalize(X)
-        X_aug_norm = iaa.PerspectiveTransform(
-            scale=(0.01, max(0.02, magnitude))
-        ).augment_images(
-            X_norm
-        )  # first scale param must be larger
-        np.clip(X_aug_norm, 0.0, 1.0, out=X_aug_norm)
-        X_aug = denormalize(X_aug_norm)
-    elif aug_type == "elastic-transform":  # deprecated
-        X_norm = normalize(X)
-        X_norm2 = (X_norm * 2) - 1
-        X_aug_norm2 = iaa.ElasticTransformation(
-            alpha=(0.0, max(0.5, magnitude * 300)), sigma=5.0
-        ).augment_images(X_norm2)
-        X_aug_norm = (X_aug_norm2 + 1) / 2
-        X_aug = denormalize(X_aug_norm)
-    elif aug_type == "add-to-hue-and-saturation":
-        X_aug = iaa.AddToHueAndSaturation(
-            (int(-45 * magnitude), int(45 * magnitude))
-        ).augment_images(X)
-    elif aug_type == "coarse-salt-pepper":
-        X_aug = iaa.CoarseSaltAndPepper(p=0.2, size_percent=magnitude).augment_images(X)
-    elif aug_type == "grayscale":
-        X_aug = iaa.Grayscale(alpha=(0.0, magnitude)).augment_images(X)
-    else:
-        raise ValueError
-    return X_aug
+    # ich nehme an die daten kommen normalisiert hier an
+    for index, img in enumerate(X):
+        X[index] = apply_transform(aug_type, magnitude, img)
+    return X
 
 
-def augment_by_policy(
-    X, y, *hyperparams
-):
-    """
-    """
-    portion = 1
+def augment_by_policy(X, y, *hyperparams):
 
-    assert (
-        portion >= 0.0 and portion <= 1.0
-    ), "portion argument value is out of accepted interval"
-
-    # convert data to 255 from normalized
-    _X = denormalize(X)
-
-    if portion == 1.0:
-        X_portion = _X
-        y_portion = y
-    else:
-        # get a portion of data
-        ix = np.random.choice(len(_X), int(len(_X) * portion), False)
-
-        X_portion = _X[ix].copy()
-        y_portion = y[ix].copy()
+    _X = X
+    X_portion = _X
+    y_portion = y
 
     if X_portion.shape[0] == 0:
         print("X_portion has zero size !!!")
@@ -151,35 +66,16 @@ def augment_by_policy(
         X_portion = _X[nix].copy()
         y_portion = y[nix].copy()
 
-
-
-    all_X_portion_aug=None
+    all_X_portion_aug = None
     all_y_portion = None
 
-    #print("Länge Hyperparams:"+str(len(hyperparams)))
-    #range(start, stop, step)
-    for i in range(0,len(hyperparams)-1,4):
-
-        #print("Iteration is:"+str(i))
-        # transform that portion
-        #print("X_portion:")
-        #print(str(X_portion))
-        X_portion_aug = transform(hyperparams[i], hyperparams[i+1], X_portion)  # first transform
-        #X_portion_aug.dump("X_aug"+str(i))
-        #X_portion.dump("X"+str(i))
-
-        assert (
-            X_portion_aug.min() >= -0.1 and X_portion_aug.max() <= 255.1
-        ), "first transform is unvalid"
-        np.clip(X_portion_aug, 0, 255, out=X_portion_aug)
+    print("Länge Hyperparams:" + str(len(hyperparams)))
+    # range(start, stop, step)
+    for i in range(0, len(hyperparams) - 1, 4):
 
         X_portion_aug = transform(
-            hyperparams[i+2], hyperparams[i+3], X_portion_aug
-        )  # second transform
-        assert (
-            X_portion_aug.min() >= -0.1 and X_portion_aug.max() <= 255.1
-        ), "second transform is unvalid"
-        np.clip(X_portion_aug, 0, 255, out=X_portion_aug)
+            hyperparams[i], hyperparams[i + 1], X_portion
+        )  # first transform
 
         if all_X_portion_aug is None:
             all_X_portion_aug = X_portion_aug
@@ -189,7 +85,7 @@ def augment_by_policy(
             all_y_portion = np.concatenate([all_y_portion, y_portion])
 
     augmented_data = {
-        "X_train": all_X_portion_aug / 255.0,
+        "X_train": all_X_portion_aug,
         "y_train": all_y_portion,
     }  # back to normalization
 

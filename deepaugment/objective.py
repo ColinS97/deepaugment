@@ -16,9 +16,8 @@ from lib.helpers import log_and_print
 
 
 class Objective:
-    """Objective class for the controller
+    """Objective class for the controller"""
 
-    """
     def __init__(self, data, child_model, notebook, config):
         self.data = data
         self.child_model = child_model
@@ -40,9 +39,7 @@ class Objective:
             float: trial-cost = 1 - avg. rewards from samples
         """
         print("before augmenting sace train dataset")
-        #self.data["X_train"].dump("X_train_before")
-        #self.data["y_train"].dump("y_train_before")
-        
+
         augmented_data = augment_by_policy(
             self.data["X_train"], self.data["y_train"], *trial_hyperparams
         )
@@ -84,9 +81,11 @@ class Objective:
         """
         # acc to accuracy because of new keras version
         history_df = pd.DataFrame(history)
-        #print(history_df.columns)
-        #Index(['loss', 'accuracy', 'val_loss', 'val_accuracy'], dtype='object')
-        history_df["accuracy_overfit"] = history_df["accuracy"] - history_df["val_accuracy"]
+        # print(history_df.columns)
+        # Index(['loss', 'accuracy', 'val_loss', 'val_accuracy'], dtype='object')
+        history_df["accuracy_overfit"] = (
+            history_df["accuracy"] - history_df["val_accuracy"]
+        )
         reward = (
             history_df[history_df["accuracy_overfit"] <= 0.10]["val_accuracy"]
             .nlargest(self.opt_last_n_epochs)

@@ -4,7 +4,12 @@ import skopt
 import numpy as np
 import aug_lib
 
-AUG_TYPES = aug_lib.ALL_TRANSFORMS
+
+AUG_TYPES = []
+
+for transform in aug_lib.ALL_TRANSFORMS:
+    AUG_TYPES.append(str(transform))
+
 MAX_MAGNITUDE = aug_lib.PARAMETER_MAX
 
 
@@ -50,25 +55,25 @@ class Controller:
         self.opt = skopt.Optimizer(
             [
                 skopt.space.Categorical(AUG_TYPES, name="A_aug1_type"),
-                skopt.space.Int(0, MAX_MAGNITUDE, name="A_aug1_magnitude"),
+                skopt.space.Integer(0, MAX_MAGNITUDE, name="A_aug1_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="A_aug2_type"),
-                skopt.space.Int(0, MAX_MAGNITUDE, name="A_aug2_magnitude"),
+                skopt.space.Integer(0, MAX_MAGNITUDE, name="A_aug2_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="B_aug1_type"),
-                skopt.space.Int(0, MAX_MAGNITUDE, name="B_aug1_magnitude"),
+                skopt.space.Integer(0, MAX_MAGNITUDE, name="B_aug1_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="B_aug2_type"),
-                skopt.space.Int(0, MAX_MAGNITUDE, name="B_aug2_magnitude"),
+                skopt.space.Integer(0, MAX_MAGNITUDE, name="B_aug2_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="C_aug1_type"),
-                skopt.space.Int(0, MAX_MAGNITUDE, name="C_aug1_magnitude"),
+                skopt.space.Integer(0, MAX_MAGNITUDE, name="C_aug1_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="C_aug2_type"),
-                skopt.space.Int(0, MAX_MAGNITUDE, name="C_aug2_magnitude"),
+                skopt.space.Integer(0, MAX_MAGNITUDE, name="C_aug2_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="D_aug1_type"),
-                skopt.space.Int(0, MAX_MAGNITUDE, name="D_aug1_magnitude"),
+                skopt.space.Integer(0, MAX_MAGNITUDE, name="D_aug1_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="D_aug2_type"),
-                skopt.space.Int(0, MAX_MAGNITUDE, name="D_aug2_magnitude"),
+                skopt.space.Integer(0, MAX_MAGNITUDE, name="D_aug2_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="E_aug1_type"),
-                skopt.space.Int(0, MAX_MAGNITUDE, name="E_aug1_magnitude"),
+                skopt.space.Integer(0, MAX_MAGNITUDE, name="E_aug1_magnitude"),
                 skopt.space.Categorical(AUG_TYPES, name="E_aug2_type"),
-                skopt.space.Int(0, MAX_MAGNITUDE, name="E_aug2_magnitude"),
+                skopt.space.Integer(0, MAX_MAGNITUDE, name="E_aug2_magnitude"),
             ],
             n_initial_points=opt_initial_points,
             base_estimator="RF",  # Random Forest estimator

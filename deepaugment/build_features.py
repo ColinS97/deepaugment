@@ -4,6 +4,7 @@ import sys
 import numpy as np
 import keras
 
+
 class DataOp:
     @staticmethod
     def load(dataset_name):
