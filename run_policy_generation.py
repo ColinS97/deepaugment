@@ -30,3 +30,5 @@ my_config = {
 deepaug = DeepAugment(images=x_train, labels=y_train, config=my_config)
 
 best_policies = deepaug.optimize(300)
+
+print(best_policies)
