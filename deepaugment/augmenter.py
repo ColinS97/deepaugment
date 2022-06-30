@@ -3,6 +3,7 @@
 import numpy as np
 import aug_lib
 from PIL import Image
+import random
 
 
 def apply_transform(aug_type, magnitude, img):
@@ -55,38 +56,19 @@ def transform(aug_type, magnitude, X):
 
 
 def augment_by_policy(X, y, *hyperparams):
-
-    _X = X
-    X_portion = _X
-    y_portion = y
-
-    if X_portion.shape[0] == 0:
-        print("X_portion has zero size !!!")
-        nix = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-        X_portion = _X[nix].copy()
-        y_portion = y[nix].copy()
-
-    all_X_portion_aug = None
-    all_y_portion = None
-
-    print("Länge Hyperparams:" + str(len(hyperparams)))
-    # range(start, stop, step)
+    augs = []
     for i in range(0, len(hyperparams) - 1, 4):
+        augs.append(hyperparams[i : i + 4])
 
-        X_portion_aug = transform(
-            hyperparams[i], hyperparams[i + 1], X_portion
-        )  # first transform
+    aug = random.choice(augs)
 
-        if all_X_portion_aug is None:
-            all_X_portion_aug = X_portion_aug
-            all_y_portion = y_portion
-        else:
-            all_X_portion_aug = np.concatenate([all_X_portion_aug, X_portion_aug])
-            all_y_portion = np.concatenate([all_y_portion, y_portion])
+    X_aug = transform(aug[0], aug[1], X)  # apply first policy
+
+    X_aug = transform(aug[2], aug[3], X_aug)  # apply second policy
 
     augmented_data = {
-        "X_train": all_X_portion_aug,
-        "y_train": all_y_portion,
-    }  # back to normalization
+        "X_train": X_aug,
+        "y_train": y,
+    }
 
     return augmented_data  # augmenteed data is mostly smaller than whole data

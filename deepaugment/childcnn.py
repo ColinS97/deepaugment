@@ -19,9 +19,9 @@ file_path = realpath(__file__)
 dir_of_file = dirname(file_path)
 sys.path.insert(0, dir_of_file)
 
-#from wide_res_net import WideResidualNetwork
+# from wide_res_net import WideResidualNetwork
 # wide resnet doesnt work in tf2
-#new tf2 compatible resnet is included now
+# new tf2 compatible resnet is included now
 from models.Resnets import cifar_WRN_28_10
 from build_features import DataOp
 from lib.decorators import Reporter
@@ -31,9 +31,7 @@ timer = Reporter.timer
 
 
 class ChildCNN:
-    """Child CNN model which reflects full models
-
-    """
+    """Child CNN model which reflects full models"""
 
     def __init__(self, input_shape=None, num_classes=None, config=None):
 
@@ -141,27 +139,29 @@ class ChildCNN:
                 return self.build_basicCNN()
             elif self.config["model"].lower().startswith("wrn"):
                 return self.build_wrn()
-            elif self.config["model"].lower() in ("mobilenetv2","inceptionv3"):
+            elif self.config["model"].lower() in ("mobilenetv2", "inceptionv3"):
                 return self.build_prepared_model()
             else:
-                print(f"config['model'] should be any of 'basiccnn', 'wrn_?_?', 'mobilenetv2', 'inceptionv3'")
+                print(
+                    f"config['model'] should be any of 'basiccnn', 'wrn_?_?', 'mobilenetv2', 'inceptionv3'"
+                )
                 raise ValueError
         else:  # if a keras model is the models itself
             return self.config["model"]
 
     def build_prepared_model(self):
 
-        if self.config["model"].lower()=="mobilenetv2":
+        if self.config["model"].lower() == "mobilenetv2":
             base_model = MobileNetV2(
                 input_shape=self.input_shape,
-                weights=self.config['weights'],
-                include_top=False
+                weights=self.config["weights"],
+                include_top=False,
             )
-        elif self.config["model"].lower()=="inceptionv3":
+        elif self.config["model"].lower() == "inceptionv3":
             base_model = InceptionV3(
                 input_shape=self.input_shape,
-                weights=self.config['weights'],
-                include_top=False
+                weights=self.config["weights"],
+                include_top=False,
             )
 
         # add a global spatial average pooling layer
@@ -192,7 +192,7 @@ class ChildCNN:
         )
         log_and_print(
             f"{self.config['model']} model built as child model.\n Model summary:",
-            self.config['logging'],
+            self.config["logging"],
         )
         print(model.summary())
         return model
@@ -203,7 +203,7 @@ class ChildCNN:
         # For WRN-40-4 put N = 6, k = 4
         _depth = int(self.config["model"].split("_")[1])  # e.g. wrn_[40]_4
         _width = int(self.config["model"].split("_")[2])  # e.g. wrn_40_[4]
-        #model = WideResidualNetwork(
+        # model = WideResidualNetwork(
         #    depth=_depth,
         #    width=_width,
         #    dropout_rate=0.0,
@@ -213,8 +213,8 @@ class ChildCNN:
         #    input_shape=self.input_shape,
         #    classes=self.num_classes,
         #    activation="softmax",
-        #)
-        #TODO: make wrn configurable again
+        # )
+        # TODO: make wrn configurable again
         model = cifar_WRN_28_10()
 
         adam_opt = keras.optimizers.Adam(

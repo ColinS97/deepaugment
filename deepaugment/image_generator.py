@@ -68,6 +68,159 @@ def deepaugment_image_generator(X, y, policy, batch_size=64, augment_chance=1):
             yield aug_X, aug_y
 
 
+def load_k_policies_from_csv(nb_df, k=20):
+    """loading the top policies from dataframe into parsable format for image generator
+    Args:
+        nb_df (pd.DF):
+        k (int, optional): Defaults to 20.
+    Returns:
+        list: list of dictionaries
+    """
+    trial_avg_val_acc_df = (
+        nb_df.drop_duplicates(["trial_no", "sample_no"])
+        .groupby("trial_no")
+        .mean()["mean_late_val_acc"]
+        .reset_index()
+    )[["trial_no", "mean_late_val_acc"]]
+
+    x_df = pd.merge(
+        nb_df.drop(columns=["mean_late_val_acc"]),
+        trial_avg_val_acc_df,
+        on="trial_no",
+        how="left",
+    )
+
+    x_df = x_df.sort_values("mean_late_val_acc", ascending=False)
+
+    baseline_val_acc = x_df[x_df["trial_no"] == 0]["mean_late_val_acc"].values[0]
+
+    x_df["expected_accuracy_increase(%)"] = (
+        x_df["mean_late_val_acc"] - baseline_val_acc
+    ) * 100
+
+    top_df = x_df.drop_duplicates(["trial_no"]).sort_values(
+        "mean_late_val_acc", ascending=False
+    )[:k]
+
+    SELECT = [
+        "trial_no",
+        "A_aug1_type",
+        "A_aug1_magnitude",
+        "A_aug2_type",
+        "A_aug2_magnitude",
+        "B_aug1_type",
+        "B_aug1_magnitude",
+        "B_aug2_type",
+        "B_aug2_magnitude",
+        "C_aug1_type",
+        "C_aug1_magnitude",
+        "C_aug2_type",
+        "C_aug2_magnitude",
+        "D_aug1_type",
+        "D_aug1_magnitude",
+        "D_aug2_type",
+        "D_aug2_magnitude",
+        "E_aug1_type",
+        "E_aug1_magnitude",
+        "E_aug2_type",
+        "E_aug2_magnitude",
+        "mean_late_val_acc",
+        "expected_accuracy_increase(%)",
+    ]
+    top_df = top_df[SELECT]
+
+    top_policies_list = top_df[
+        [
+            "A_aug1_type",
+            "A_aug1_magnitude",
+            "A_aug2_type",
+            "A_aug2_magnitude",
+            "B_aug1_type",
+            "B_aug1_magnitude",
+            "B_aug2_type",
+            "B_aug2_magnitude",
+            "C_aug1_type",
+            "C_aug1_magnitude",
+            "C_aug2_type",
+            "C_aug2_magnitude",
+            "D_aug1_type",
+            "D_aug1_magnitude",
+            "D_aug2_type",
+            "D_aug2_magnitude",
+            "E_aug1_type",
+            "E_aug1_magnitude",
+            "E_aug2_type",
+            "E_aug2_magnitude",
+        ]
+    ].to_dict(orient="records")
+
+    return top_policies_list
+
+
+def load_top_df_from_csv(nb_df, k=20):
+    """loading the top policies from dataframe into parsable format for image generator
+    Args:
+        nb_df (pd.DF):
+        k (int, optional): Defaults to 20.
+    Returns:
+        list: list of dictionaries
+    """
+    trial_avg_val_acc_df = (
+        nb_df.drop_duplicates(["trial_no", "sample_no"])
+        .groupby("trial_no")
+        .mean()["mean_late_val_acc"]
+        .reset_index()
+    )[["trial_no", "mean_late_val_acc"]]
+
+    x_df = pd.merge(
+        nb_df.drop(columns=["mean_late_val_acc"]),
+        trial_avg_val_acc_df,
+        on="trial_no",
+        how="left",
+    )
+
+    x_df = x_df.sort_values("mean_late_val_acc", ascending=False)
+
+    baseline_val_acc = x_df[x_df["trial_no"] == 0]["mean_late_val_acc"].values[0]
+
+    x_df["expected_accuracy_increase(%)"] = (
+        x_df["mean_late_val_acc"] - baseline_val_acc
+    ) * 100
+
+    top_df = x_df.drop_duplicates(["trial_no"]).sort_values(
+        "mean_late_val_acc", ascending=False
+    )[:k]
+
+    SELECT = [
+        "trial_no",
+        "A_aug1_type",
+        "A_aug1_magnitude",
+        "A_aug2_type",
+        "A_aug2_magnitude",
+        "B_aug1_type",
+        "B_aug1_magnitude",
+        "B_aug2_type",
+        "B_aug2_magnitude",
+        "C_aug1_type",
+        "C_aug1_magnitude",
+        "C_aug2_type",
+        "C_aug2_magnitude",
+        "D_aug1_type",
+        "D_aug1_magnitude",
+        "D_aug2_type",
+        "D_aug2_magnitude",
+        "E_aug1_type",
+        "E_aug1_magnitude",
+        "E_aug2_type",
+        "E_aug2_magnitude",
+        "mean_late_val_acc",
+        "expected_accuracy_increase(%)",
+    ]
+    top_df = top_df[SELECT]
+
+    return top_df
+
+
 def test_deepaugment_image_generator():
     X = np.random.rand(200, 32, 32, 3)
 
@@ -78,21 +231,21 @@ def test_deepaugment_image_generator():
 
     policy = [
         {
-            "aug1_type": "sharpen",
-            "aug1_magnitude": 0.5,
-            "aug2_type": "rotate",
-            "aug2_magnitude": 0.2,
-            "aug3_type": "emboss",
-            "aug3_magnitude": 0.2,
+            "aug1_type": "<rotate>",
+            "aug1_magnitude": 5,
+            "aug2_type": "<rotate>",
+            "aug2_magnitude": 2,
+            "aug3_type": "<rotate>",
+            "aug3_magnitude": 2,
             "portion": 0.5,
         },
         {
-            "aug1_type": "gamma-contrast",
-            "aug1_magnitude": 0.5,
-            "aug2_type": "dropout",
-            "aug2_magnitude": 0.2,
-            "aug3_type": "clouds",
-            "aug3_magnitude": 0.2,
+            "aug1_type": "<rotate>",
+            "aug1_magnitude": 5,
+            "aug2_type": "<rotate>",
+            "aug2_magnitude": 2,
+            "aug3_type": "<rotate>",
+            "aug3_magnitude": 2,
             "portion": 0.2,
         },
     ]

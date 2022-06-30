@@ -1,6 +1,8 @@
 from deepaugment.deepaugment import DeepAugment
 import numpy as np
+from pathlib import Path
 import datetime
+import keras
 
 path = "pathmnist.npz"
 x_train = None
@@ -10,9 +12,14 @@ with np.load(path) as data:
     x_train = data["train_images"]
     y_train = data["train_labels"]
 
+
 now = datetime.datetime.now()
 EXPERIMENT_NAME = f"{now.month:02}-{now.day:02}_{now.hour:02}-{now.minute:02}"
 # child_epochs set to 10 for a quick run, but it should be >=50 for a proper analysis
+
+nb_path = "logs_" + path + EXPERIMENT_NAME
+
+Path(nb_path).mkdir(parents=True, exist_ok=True)
 my_config = {
     "model": "basiccnn",
     "method": "bayesian_optimization",
@@ -22,7 +29,7 @@ my_config = {
     "child_epochs": 120,
     "child_first_train_epochs": 0,
     "child_batch_size": 64,
-    "notebook_path": "logs_" + path + EXPERIMENT_NAME + "/notebook.csv",
+    "notebook_path": nb_path + "/notebook.csv",
 }
 
 # X_train.shape -> (N, M, M, 3)
