@@ -1,6 +1,7 @@
 # (C) 2019 Baris Ozmen <hbaristr@gmail.com>
 
 import tensorflow as tf
+import pandas as pd
 
 # from tensorflow import keras
 import keras
@@ -60,6 +61,28 @@ if "GPU" not in local_devices_str and "TPU" not in local_devices_str:
 # Note: GPU not among local devices means GPU not used for sure,
 #       HOWEVER GPU among local devices does not guarantee it is used
 
+no_aug_hyperparams = [
+    "<identity>",
+    0,
+    "<identity>",
+    0,
+    "<identity>",
+    0,
+    "<identity>",
+    0,
+    "<identity>",
+    0,
+    "<identity>",
+    0,
+    "<identity>",
+    0,
+    "<identity>",
+    0,
+    "<identity>",
+    0,
+    "<identity>",
+    0,
+]
 
 DEFAULT_CONFIG = {
     "model": "basiccnn",
@@ -223,34 +246,26 @@ class DeepAugment:
         history = self.child_model.fit(
             self.data, epochs=self.config["child_first_train_epochs"]
         )
+
+        history_df = pd.DataFrame(history)
+        # print(history_df.columns)
+        # Index(['loss', 'accuracy', 'val_loss', 'val_accuracy'], dtype='object')
+        history_df["accuracy_overfit"] = (
+            history_df["accuracy"] - history_df["val_accuracy"]
+        )
+        reward = (
+            history_df[history_df["accuracy_overfit"] <= 0.10]["val_accuracy"]
+            .nlargest(self.config["opt_last_n_epochs"])
+            .mean()
+        )
+
         self.notebook.record(
-            -1, ["first", 0.0, "first", 0.0, "first", 0.0, 0.0], 1, None, history
+            -1, no_aug_hyperparams, self.config["opt_samples"], reward, history
         )
 
     def _evaluate_objective_func_without_augmentation(self):
         """Find out what would be the accuracy if augmentation are not applied"""
-        no_aug_hyperparams = [
-            "<identity>",
-            0,
-            "<identity>",
-            0,
-            "<identity>",
-            0,
-            "<identity>",
-            0,
-            "<identity>",
-            0,
-            "<identity>",
-            0,
-            "<identity>",
-            0,
-            "<identity>",
-            0,
-            "<identity>",
-            0,
-            "<identity>",
-            0,
-        ]
+
         f_val = self.objective_func.evaluate(0, no_aug_hyperparams)
         self.controller.tell(no_aug_hyperparams, f_val)
 

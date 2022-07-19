@@ -1,0 +1,6 @@
+trial_no,A_aug1_type,A_aug1_magnitude,A_aug2_type,A_aug2_magnitude,B_aug1_type,B_aug1_magnitude,B_aug2_type,B_aug2_magnitude,C_aug1_type,C_aug1_magnitude,C_aug2_type,C_aug2_magnitude,D_aug1_type,D_aug1_magnitude,D_aug2_type,D_aug2_magnitude,E_aug1_type,E_aug1_magnitude,E_aug2_type,E_aug2_magnitude,mean_late_val_acc,expected_accuracy_increase(%)
+0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,0.8696666666666667,0.0
+-1,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,0.812,-5.766666666666664
+2,<Contrast>,2,<TranslateX>,2,<AutoContrast>,10,<Posterize>,24,<Posterize>,3,<ShearX>,11,<Solarize>,29,<Brightness>,17,<Color>,28,<Posterize>,10,0.794,-7.566666666666666
+1,<Brightness>,8,<Contrast>,24,<Rotate>,3,<Equalize>,15,<Brightness>,19,<Equalize>,15,<identity>,22,<Solarize>,30,<Solarize>,10,<ShearX>,30,0.734,-13.566666666666672
+3,<Solarize>,14,<ShearX>,22,<Color>,22,<Color>,25,<ShearY>,2,<Color>,30,<identity>,18,<ShearY>,9,<Posterize>,11,<TranslateX>,24,0.699,-17.066666666666674

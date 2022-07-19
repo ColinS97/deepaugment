@@ -5,21 +5,8 @@ import numpy as np
 import aug_lib
 
 
-AUG_TYPES = []
-
-for transform in aug_lib.ALL_TRANSFORMS:
-    AUG_TYPES.append(str(transform))
-
 MAX_MAGNITUDE = aug_lib.PARAMETER_MAX
-
-
-def augment_type_chooser():
-    """A random function to choose among augmentation types
-
-    Returns:
-        function object: np.random.choice function with AUG_TYPES input
-    """
-    return np.random.choice(AUG_TYPES)
+AUG_TYPES = []
 
 
 class Controller:
@@ -33,15 +20,21 @@ class Controller:
         Args:
              config (dict)
         """
-
+        for transform in aug_lib.ALL_TRANSFORMS:
+            AUG_TYPES.append(str(transform))
         if config["method"].startswith("bayes"):
             self.method = "bayesian_optimization"
             self.init_skopt(config["opt_initial_points"])
-        elif config["method"].startswith("random"):
-            self.method = "random_search"
-            self.init_random_search()
         else:
             raise ValueError
+
+    def augment_type_chooser():
+        """A random function to choose among augmentation types
+
+        Returns:
+            function object: np.random.choice function with AUG_TYPES input
+        """
+        return np.random.choice(AUG_TYPES)
 
     def init_skopt(self, opt_initial_points):
         """Initialize as scikit-optimize (skopt) Optimizer with a 5-dimensional search space
@@ -85,9 +78,9 @@ class Controller:
     def init_random_search(self):
         """Initializes random search as the search space is list of random functions"""
         self.random_search_space = [
-            augment_type_chooser,
+            self.augment_type_chooser,
             np.random.rand,
-            augment_type_chooser,
+            self.augment_type_chooser,
             np.random.rand,
             np.random.rand,
         ]
@@ -104,8 +97,6 @@ class Controller:
         """
         if self.method == "bayesian_optimization":
             return self.opt.ask()
-        elif self.method == "random_search":
-            return [func() for func in random_search_space]
 
     def tell(self, trial_hyperparams, f_val):
         """Tells the controller result of previous tried hyperparameters
@@ -118,5 +109,3 @@ class Controller:
         """
         if self.method == "bayesian_optimization":
             self.opt.tell(trial_hyperparams, f_val)
-        elif self.method == "random_search":
-            pass  # no need to tell anythin

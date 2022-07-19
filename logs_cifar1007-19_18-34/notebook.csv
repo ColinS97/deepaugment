@@ -1,0 +1,7 @@
+loss,accuracy,val_loss,val_accuracy,trial_no,A_aug1_type,A_aug1_magnitude,A_aug2_type,A_aug2_magnitude,B_aug1_type,B_aug1_magnitude,B_aug2_type,B_aug2_magnitude,C_aug1_type,C_aug1_magnitude,C_aug2_type,C_aug2_magnitude,D_aug1_type,D_aug1_magnitude,D_aug2_type,D_aug2_magnitude,E_aug1_type,E_aug1_magnitude,E_aug2_type,E_aug2_magnitude,sample_no,mean_late_val_acc,epoch
+2.224,0.166,2.198,0.184,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,1,0.252,1
+1.943,0.282,1.874,0.319,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,1,0.252,2
+2.256,0.14,2.143,0.196,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,2,0.258,1
+2.004,0.266,1.844,0.319,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,2,0.258,2
+2.249,0.141,2.1,0.233,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,3,0.293,1
+2.007,0.261,1.786,0.353,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,<identity>,0,3,0.293,2
