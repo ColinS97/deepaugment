@@ -43,7 +43,8 @@ import numpy as np
 import ssl
 
 # This restores the same behavior as before.
-context = ssl._create_unverified_context()
+
+ssl._create_default_https_context = ssl._create_unverified_context
 
 (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
 
