@@ -40,7 +40,10 @@ from keras.datasets import fashion_mnist
 import datetime
 from pathlib import Path
 import numpy as np
+import ssl
 
+# This restores the same behavior as before.
+context = ssl._create_unverified_context()
 
 (x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
 
@@ -57,9 +60,9 @@ my_config = {
     "method": "bayesian_optimization",
     "opt_samples": 3,
     "opt_last_n_epochs": 3,
-    "opt_initial_points": 0,
+    "opt_initial_points": 10,
     "child_epochs": 100,
-    "child_first_train_epochs": 50,
+    "child_first_train_epochs": 25,
     "child_batch_size": 64,
     "notebook_path": nb_path + "/notebook.csv",
 }
@@ -72,6 +75,6 @@ stacked_img = np.stack((x_train,) * 3, axis=-1)
 print(stacked_img.shape)
 deepaug = DeepAugment(images=stacked_img, labels=y_train, config=my_config)
 
-best_policies = deepaug.optimize(200)
+best_policies = deepaug.optimize(150)
 
 print(best_policies)
