@@ -250,13 +250,11 @@ class DeepAugment:
         history_df = pd.DataFrame(history)
         # print(history_df.columns)
         # Index(['loss', 'accuracy', 'val_loss', 'val_accuracy'], dtype='object')
-        history_df["accuracy_overfit"] = (
-            history_df["accuracy"] - history_df["val_accuracy"]
-        )
+        # history_df["accuracy_overfit"] = (
+        #    history_df["accuracy"] - history_df["val_accuracy"]
+        # )
         reward = (
-            history_df[history_df["accuracy_overfit"] <= 0.10]["val_accuracy"]
-            .nlargest(self.config["opt_last_n_epochs"])
-            .mean()
+            history_df["val_accuracy"].nlargest(self.config["opt_last_n_epochs"]).mean()
         )
 
         self.notebook.record(
