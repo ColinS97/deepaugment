@@ -12,11 +12,9 @@ AUG_TYPES = []
 class Controller:
 
     opt = None  # used only if method is bayesian optimization
-    random_search_space = None  # used only if method is random search
 
     def __init__(self, config):
-        """Initiliaze Controller either as a Bayesian Optimizer or as a Random Search Algorithm
-
+        """Initiliaze Controller as a Bayesian Optimizer
         Args:
              config (dict)
         """
@@ -75,28 +73,14 @@ class Controller:
             random_state=0,
         )
 
-    def init_random_search(self):
-        """Initializes random search as the search space is list of random functions"""
-        self.random_search_space = [
-            self.augment_type_chooser,
-            np.random.rand,
-            self.augment_type_chooser,
-            np.random.rand,
-            np.random.rand,
-        ]
-
     def ask(self):
         """Ask controller for the next hyperparameter search.
-
-
         If Bayesian Optimizer, samples next hyperparameters by its internal statistic calculations (Random Forest Estimators, Gaussian Processes, etc.). If Random Search, samples randomly
         Based on ask-tell design pattern
-
         Returns:
             list: list of hyperparameters
         """
-        if self.method == "bayesian_optimization":
-            return self.opt.ask()
+        return self.opt.ask()
 
     def tell(self, trial_hyperparams, f_val):
         """Tells the controller result of previous tried hyperparameters
@@ -107,5 +91,4 @@ class Controller:
             trial_hyperparams (list): list of tried hyperparamters
             f_val (float): trial cost
         """
-        if self.method == "bayesian_optimization":
-            self.opt.tell(trial_hyperparams, f_val)
+        self.opt.tell(trial_hyperparams, f_val)
