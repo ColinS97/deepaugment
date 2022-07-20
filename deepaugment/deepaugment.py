@@ -165,10 +165,15 @@ class DeepAugment:
             pandas.DataFrame: top policies (with highest expected accuracy increase)
         """
         # iteratate optimizer
+        best_cost = 1e100
+        best_hyperparams = no_aug_hyperparams
         for trial_no in range(self.iterated + 1, self.iterated + iterations + 1):
             trial_hyperparams = self.controller.ask()
             print("trial:", trial_no, "\n", trial_hyperparams)
             f_val = self.objective_func.evaluate(trial_no, trial_hyperparams)
+            if f_val < best_cost:
+                best_cost = f_val
+                best_hyperparams = trial_hyperparams
             self.controller.tell(trial_hyperparams, f_val)
 
         self.iterated += iterations  # update number of previous iterations
@@ -176,7 +181,8 @@ class DeepAugment:
         self.top_policies = self.notebook.get_top_policies(20)
         self.notebook.output_top_policies()
         print("\ntop policies are:\n", self.top_policies)
-
+        print("")
+        print("best hyperparams are:", best_hyperparams)
         return self.top_policies
 
     def image_generator_with_top_policies(self, images, labels, batch_size=None):
@@ -246,20 +252,9 @@ class DeepAugment:
         history = self.child_model.fit(
             self.data, epochs=self.config["child_first_train_epochs"]
         )
+        reward = self.objective_func.calculate_reward(history)
 
-        history_df = pd.DataFrame(history)
-        # print(history_df.columns)
-        # Index(['loss', 'accuracy', 'val_loss', 'val_accuracy'], dtype='object')
-        # history_df["accuracy_overfit"] = (
-        #    history_df["accuracy"] - history_df["val_accuracy"]
-        # )
-        reward = (
-            history_df["val_accuracy"].nlargest(self.config["opt_last_n_epochs"]).mean()
-        )
-
-        self.notebook.record(
-            -1, no_aug_hyperparams, self.config["opt_samples"], reward, history
-        )
+        self.notebook.record(-1, no_aug_hyperparams, 1, reward, history)
 
     def _evaluate_objective_func_without_augmentation(self):
         """Find out what would be the accuracy if augmentation are not applied"""

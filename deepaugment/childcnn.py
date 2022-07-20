@@ -119,7 +119,7 @@ class ChildCNN:
 
         test_loss = scores[0]
         test_acc = scores[1]
-        log_and_printt(f"Test loss:{test_loss}")
+        log_and_print(f"Test loss:{test_loss}")
         log_and_print(f"Test accuracy:{test_acc}")
         return test_loss, test_acc
 
