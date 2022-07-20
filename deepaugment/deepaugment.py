@@ -252,7 +252,7 @@ class DeepAugment:
         history = self.child_model.fit(
             self.data, epochs=self.config["child_first_train_epochs"]
         )
-        reward = self.objective_func.calculate_reward(history)
+        reward = self.calculate_reward(history)
 
         self.notebook.record(-1, no_aug_hyperparams, 1, reward, history)
 
@@ -261,6 +261,20 @@ class DeepAugment:
 
         f_val = self.objective_func.evaluate(0, no_aug_hyperparams)
         self.controller.tell(no_aug_hyperparams, f_val)
+
+    def calculate_reward(self, history):
+        """Calculates reward for the history.
+
+        Reward is mean of largest n validation accuracies.
+        n is determined by the user by `opt_last_n_epochs` argument.
+        Args:
+            history (dict): dictionary of loss and accuracy
+        Returns:
+            float: reward
+        """
+        history_df = pd.DataFrame(history)
+        reward = history_df["val_accuracy"].nlargest(self.opt_last_n_epochs).mean()
+        return reward
 
 
 @click.command()
