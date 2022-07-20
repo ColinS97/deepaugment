@@ -273,7 +273,9 @@ class DeepAugment:
             float: reward
         """
         history_df = pd.DataFrame(history)
-        reward = history_df["val_accuracy"].nlargest(self.opt_last_n_epochs).mean()
+        reward = (
+            history_df["val_accuracy"].nlargest(self.config["opt_last_n_epochs"]).mean()
+        )
         return reward
 
 
