@@ -59,7 +59,7 @@ Path(nb_path).mkdir(parents=True, exist_ok=True)
 my_config = {
     "model": "basiccnn",
     "method": "bayesian_optimization",
-    "opt_samples": 3,
+    "opt_samples": 2,
     "opt_last_n_epochs": 3,
     "opt_initial_points": 10,
     "child_epochs": 100,
@@ -76,6 +76,6 @@ stacked_img = np.stack((x_train,) * 3, axis=-1)
 print(stacked_img.shape)
 deepaug = DeepAugment(images=stacked_img, labels=y_train, config=my_config)
 
-best_policies = deepaug.optimize(150)
+best_policies = deepaug.optimize(100)
 
 print(best_policies)
