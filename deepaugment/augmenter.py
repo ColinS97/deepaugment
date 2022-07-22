@@ -8,7 +8,7 @@ import random
 
 def apply_transform(aug_type, magnitude, img):
     # ich nehme an die daten kommen normalisiert hier an
-    propability = 1.0
+    propability = 0.5
     X_denormed = img * 255
     denormed_pil_image = Image.fromarray(np.uint8(X_denormed))
     X = denormed_pil_image
